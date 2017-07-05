@@ -1,0 +1,26 @@
+{
+	"name": "raphievila/utils",
+	"version": "v1.0.0",
+	"description": "PHP Swiss Knife - basic utilities for quick coding",
+	"repositories": {
+		"url": "https://github.com/raphievila/utils.git",
+		"type": "https",
+		"reference": "master"
+	},
+	"license": "GNU 3.0",
+	"require": {
+		"php": "^5.3 || ^7.0",
+		"xtags": "dev-master"
+	},
+	"autoload": {
+		"psr-4": {
+			"Utils\\": "src/",
+			"Vendor\\Utils\\": ""
+		},
+		"classmap": [ "src/" ]
+	},
+	"config": {
+		"github-protocols": ["git", "https", "http"]
+	},
+	"minimum-stability": "dev"
+}
