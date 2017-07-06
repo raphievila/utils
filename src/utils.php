@@ -1,6 +1,6 @@
 <?php
 Namespace Utils;
-use xTags;
+use xTags\xTags;
 //Author: Rafael Vila
 /*
  *Version: 3.0.2
