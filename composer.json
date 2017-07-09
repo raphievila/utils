@@ -2,12 +2,26 @@
 	"name": "raphievila/utils",
 	"version": "v1.0.0",
 	"description": "PHP Swiss Knife - basic utilities for quick coding",
-	"repositories": {
-		"url": "https://github.com/raphievila/utils.git",
-		"type": "https",
-		"reference": "master"
+	"authors":[
+		{
+			"name": "Rafael Vilá",
+			"email": "rvila@revolutionvisualarts.com",
+			"homepage": "https://revolutionvisualarts.com",
+			"role": "Developer"
+		}
+	],
+	"support": {
+		"email": "rvila@revolutionvisualarts.com",
+		"forum": "http://designersgate.com"
 	},
-	"license": "GNU 3.0",
+	"repositories": [
+		{
+			"type": "vcs",
+			"url": "https://github.com/raphievila/utils.git",
+			"reference": "master"
+		}
+	],
+	"license": "GPL-3.0",
 	"require": {
 		"php": "^5.3 || ^7.0",
 		"raphievila/xtags": "^1.0.1"
