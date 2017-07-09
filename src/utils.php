@@ -3,8 +3,8 @@ Namespace Utils;
 use xTags\xTags;
 //Author: Rafael Vila
 /*
- *Version: 3.0.2
- *Last Modified: May 30th, 2016 02:36
+ *Version: 1.0.1
+ *Last Modified: July 9th, 2016 14:49
  *License:
 	Utils is a object swiss tool to help programming php with quick tools
     that allows you to automize basic curl connections, echoing arrays or
@@ -601,5 +601,10 @@ class Utils {
         } else {
             return "Unknown Error";
         }
+    }
+
+    //basic email structure validation
+    public static function validateEmail($email) {
+        return preg_match("/^([\w\d\._]{4,250})(@)([\w\d\._]{4,250})(\.\w{2,6})$/",$email);
     }
 }
