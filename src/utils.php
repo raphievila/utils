@@ -4,8 +4,8 @@ use xTags\xTags;
 
 //Author: Rafael Vila
 /*
- *Version: 1.0.1
- *Last Modified: July 9th, 2016 14:49
+ *Version: 1.0.2
+ *Last Modified: September 9th, 2016 14:43
  *License:
 	Utils is a object swiss tool to help programming php with quick tools
     that allows you to automize basic curl connections, echoing arrays or
