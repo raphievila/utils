@@ -1,6 +1,7 @@
 <?php
 Namespace Utils;
 use xTags\xTags;
+
 //Author: Rafael Vila
 /*
  *Version: 1.0.1
@@ -500,7 +501,7 @@ class Utils {
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         $response = curl_exec($ch);
         if($response === FALSE){
-            throw new Exception("cURL Error #" . curl_errno($ch) . ": " . curl_error($ch), curl_errno($ch));
+            throw new \Exception("cURL Error #" . curl_errno($ch) . ": " . curl_error($ch), curl_errno($ch));
         }
         curl_close($ch);
         
