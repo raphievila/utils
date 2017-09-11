@@ -450,6 +450,7 @@ class Utils {
         $showHeaders = FALSE;
         $asPost = FALSE;
         $user = NULL; $pass = NULL; $post = NULL;
+        $ntlm = NULL; $action = NULL;
         $contentType = "text/html";
         $timeout = 30;
         $nosession = FALSE;
@@ -470,10 +471,26 @@ class Utils {
             $contentType = "application/x-www-form-urlencoded";
         }
         
-        $header = array(
-            "Content-type: $contentType; charset=UTF-8;",
-            "Content-transfer-encoding: text"
-        );
+        //TODO: trying to add NTLM credential option but has been unsuccessful
+        //      just keeping code in case someone can fix this issue, the
+        //      purpose is to add ability to connecto to MS Dynamics Web Service and
+        //      retrieve XML results if successful.
+        //      DO NOT SET $ntlm TRUE YET. NOT WORKING PROPERLY
+        if($ntlm && $action) {
+            $header = array(
+                'Method: POST',
+                'Connection: Keep-Alive',
+                'User-Agent: PHP-SOAP-CURL',
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: "urn:microsoft-dynamics-schemas/page/' . $action . '"',
+                'Transfer-Encoding: chunked'
+            );
+        } else {
+            $header = array(
+                "Content-type: $contentType; charset='UTF-8';",
+                "Content-transfer-encoding: UseBase64"
+            );
+        }
         
         if(isset($post) && is_array($post)){
             $posts = array();
@@ -493,14 +510,22 @@ class Utils {
         if($showHeaders) { curl_setopt($ch, CURLOPT_HEADER, TRUE); }
         if($asPost) { curl_setopt($ch, CURLOPT_POST, TRUE); }
         curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
-        curl_setopt($ch, CURLOPT_COOKIESESSION, TRUE);
-        if(!$nosession) { curl_setopt($ch, CURLOPT_COOKIE, $session); }
+        if(!$nosession) {
+            curl_setopt($ch, CURLOPT_COOKIESESSION, TRUE);
+            curl_setopt($ch, CURLOPT_COOKIE, $session);
+        }
         curl_setopt($ch, CURLOPT_FAILONERROR, FALSE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, FALSE);
         curl_setopt($ch, CURLOPT_FRESH_CONNECT, TRUE);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        if(isset($user)){ curl_setopt($ch, CURLOPT_USERNAME, $user); }
-        if(isset($pass)){ curl_setopt($ch, CURLOPT_USERPWD, $pass); }
+        if(isset($ntlm)) {
+            curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
+            curl_setopt($ch, CURLOPT_USERPWD, "$user:$pass");
+        } else {
+            if(isset($user)){ curl_setopt($ch, CURLOPT_USERNAME, $user); }
+            if(isset($pass)){ curl_setopt($ch, CURLOPT_USERPWD, $pass); }
+        }
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         $response = curl_exec($ch);
         if($response === FALSE){
