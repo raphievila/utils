@@ -466,6 +466,9 @@ class Utils {
         
         $https = filter_input(INPUT_SERVER,'HTTPS');
         $ssl = (isset($https) && $https == "on")? TRUE: FALSE;
+        if($asPost) {
+            $contentType = "application/x-www-form-urlencoded";
+        }
         
         $header = array(
             "Content-type: $contentType; charset=UTF-8;",
