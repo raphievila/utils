@@ -540,7 +540,7 @@ class Utils {
         return self::session_integrity($url, $args);
     }
     
-    //to calculate height ration from given width
+    //to calculate height ratio from given width
     public function image_size_by_ratio($x,$y,$max){
         $width  = (round($max*($x/$y)) > $max)? $max : round($max*($x/$y));
         $height = (round($max*($y/$x)) > $max)? $max : round($max*($y/$x));        
