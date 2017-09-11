@@ -1,10 +1,11 @@
 <?php
 Namespace Utils;
 use xTags\xTags;
+
 //Author: Rafael Vila
 /*
- *Version: 1.0.1
- *Last Modified: July 9th, 2016 14:49
+ *Version: 1.0.2
+ *Last Modified: September 9th, 2017 14:43
  *License:
 	Utils is a object swiss tool to help programming php with quick tools
     that allows you to automize basic curl connections, echoing arrays or
@@ -449,6 +450,7 @@ class Utils {
         $showHeaders = FALSE;
         $asPost = FALSE;
         $user = NULL; $pass = NULL; $post = NULL;
+        $ntlm = NULL; $action = NULL;
         $contentType = "text/html";
         $timeout = 30;
         $nosession = FALSE;
@@ -465,11 +467,30 @@ class Utils {
         
         $https = filter_input(INPUT_SERVER,'HTTPS');
         $ssl = (isset($https) && $https == "on")? TRUE: FALSE;
+        if($asPost) {
+            $contentType = "application/x-www-form-urlencoded";
+        }
         
-        $header = array(
-            "Content-type: $contentType; charset=UTF-8;",
-            "Content-transfer-encoding: text"
-        );
+        //TODO: trying to add NTLM credential option but has been unsuccessful
+        //      just keeping code in case someone can fix this issue, the
+        //      purpose is to add ability to connecto to MS Dynamics Web Service and
+        //      retrieve XML results if successful.
+        //      DO NOT SET $ntlm TRUE YET. NOT WORKING PROPERLY
+        if($ntlm && $action) {
+            $header = array(
+                'Method: POST',
+                'Connection: Keep-Alive',
+                'User-Agent: PHP-SOAP-CURL',
+                'Content-Type: text/xml; charset=utf-8',
+                'SOAPAction: "urn:microsoft-dynamics-schemas/page/' . $action . '"',
+                'Transfer-Encoding: chunked'
+            );
+        } else {
+            $header = array(
+                "Content-type: $contentType; charset='UTF-8';",
+                "Content-transfer-encoding: UseBase64"
+            );
+        }
         
         if(isset($post) && is_array($post)){
             $posts = array();
@@ -489,18 +510,26 @@ class Utils {
         if($showHeaders) { curl_setopt($ch, CURLOPT_HEADER, TRUE); }
         if($asPost) { curl_setopt($ch, CURLOPT_POST, TRUE); }
         curl_setopt($ch, CURLOPT_AUTOREFERER, TRUE);
-        curl_setopt($ch, CURLOPT_COOKIESESSION, TRUE);
-        if(!$nosession) { curl_setopt($ch, CURLOPT_COOKIE, $session); }
+        if(!$nosession) {
+            curl_setopt($ch, CURLOPT_COOKIESESSION, TRUE);
+            curl_setopt($ch, CURLOPT_COOKIE, $session);
+        }
         curl_setopt($ch, CURLOPT_FAILONERROR, FALSE);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, FALSE);
         curl_setopt($ch, CURLOPT_FRESH_CONNECT, TRUE);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-        if(isset($user)){ curl_setopt($ch, CURLOPT_USERNAME, $user); }
-        if(isset($pass)){ curl_setopt($ch, CURLOPT_USERPWD, $pass); }
+        if(isset($ntlm)) {
+            curl_setopt($ch, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_1_1);
+            curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_NTLM);
+            curl_setopt($ch, CURLOPT_USERPWD, "$user:$pass");
+        } else {
+            if(isset($user)){ curl_setopt($ch, CURLOPT_USERNAME, $user); }
+            if(isset($pass)){ curl_setopt($ch, CURLOPT_USERPWD, $pass); }
+        }
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
         $response = curl_exec($ch);
         if($response === FALSE){
-            throw new Exception("cURL Error #" . curl_errno($ch) . ": " . curl_error($ch), curl_errno($ch));
+            throw new \Exception("cURL Error #" . curl_errno($ch) . ": " . curl_error($ch), curl_errno($ch));
         }
         curl_close($ch);
         
@@ -511,7 +540,7 @@ class Utils {
         return self::session_integrity($url, $args);
     }
     
-    //to calculate height ration from given width
+    //to calculate height ratio from given width
     public function image_size_by_ratio($x,$y,$max){
         $width  = (round($max*($x/$y)) > $max)? $max : round($max*($x/$y));
         $height = (round($max*($y/$x)) > $max)? $max : round($max*($y/$x));        
