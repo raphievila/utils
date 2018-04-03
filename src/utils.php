@@ -4,12 +4,12 @@ use xTags\xTags;
 
 //Author: Rafael Vila
 /*
- *Version: 1.0.2
- *Last Modified: September 9th, 2017 14:43
+ *Version: 1.0.3
+ *Last Modified: April 3rd, 2018 12:35
  *License:
 	Utils is a object swiss tool to help programming php with quick tools
-    that allows you to automize basic curl connections, echoing arrays or
-    objects ready for html output. Requires raphievila/xtags object.
+    	that allows you to automize basic curl connections, echoing arrays or
+    	objects ready for html output. Requires raphievila/xtags object.
 	Copyright (C) 2016  Rafael Vila - Revolution Visual Arts
 
 	This program is free software: you can redistribute it and/or modify
@@ -630,6 +630,157 @@ class Utils {
         } else {
             return "Unknown Error";
         }
+    }
+    
+    public static function shareButton($network, $url, $params = FALSE) {
+        $x = new xTags();
+        $buttonClass = FALSE;
+        $classes = array("simpleButton");
+        $label = '';
+        $parameters = '';
+        $urlRequest = '?url=' . urlencode($url);
+        $width = 548;
+        $height = 425;
+        $shareLink = (object) array(
+            "facebook" => "https://www.facebook.com/sharer.php",
+            "twitter" => "https://www.twitter.com/share",
+            "google-plus" => "https://plus.google.com/share",
+            "pinterest" => "https://www.pinterest.com/pin/create/button/",
+            "linkedin" => "https://www.linkedin.com/shareArticle"
+        );
+        
+        if (is_array($params) && isset($params['label'])) {
+            $label = self::processInput($params['label']);
+            unset($params['label']);
+        }
+        
+        switch($network) {
+            case 'facebook':
+                $par = "";
+                $parameters = "";
+                if (self::CHECKMAP($params)) {
+                    $par = array();
+                    foreach($params as $p => $v) {
+                        $arrkey = ($p === 'images') ? '[0]' : '';
+                        $par[] = "p[$p]$arrkey=" . urlencode($v);
+                    }
+                    $parameters = '&' . join('&', $par);
+                }
+                $height = 325;
+                $urlRequest = '?s=100&p[url]=' . urlencode($url);
+                $buttonClass = 'facebook';
+                break;
+            case 'twitter':
+                $buttonClass = 'twitter';
+                break;
+            case 'pinterest':
+                $par = "";
+                if (self::CHECKMAP($params)) {
+                    $par = array();
+                    foreach($params as $p => $v) {
+                        switch($p){
+                            case 'title':
+                                $p = 'description';
+                                break;
+                            case 'image':
+                            case 'images':
+                                $p = 'media';
+                                break;
+                        }
+                        $par[] = "$p=$v";
+                    }
+                    $parameters = '&' . join('&', $par);
+                }
+                $width = 800;
+                $height = 800;
+                $urlRequest = "?url=$url";
+                $buttonClass = 'pinterest';
+                break;
+            case 'linkedin':
+                $par = "";
+                $parameters = "";
+                if (self::CHECKMAP($params)) {
+                    $par = array();
+                    foreach($params as $p => $v) {
+                        $par[] = "$p=" . urlencode(strip_tags($v));
+                    }
+                    $parameters = '&' . join('&', $par);
+                }
+                $height = 325;
+                $urlRequest = '?mini=true&url=' . urlencode($url);
+                $buttonClass = 'linkedin';
+                break;
+            case 'google':
+            case 'google-plus':
+                $width = 400;
+                $height = 525;
+                $urlRequest = '?url=' . $url;
+                $buttonClass = 'google-plus';
+                break;
+        }
+        
+        $classes[] = '_social-' . $buttonClass;
+        $functionName = str_replace('-', '', $network) . "Share";
+        
+        return ($buttonClass)
+            ? $x->a(
+                    $label
+                    , "onclick:$functionName()"
+                    . ",class:" . join(' ', $classes) . ",target:_blank")
+              . $x->script("var $functionName = function () { window.open('"
+                      . $shareLink->{$network} . $urlRequest . $parameters
+                      . "', 'sharer', 'toolbar=0,status=0,scrollbars=1,width=$width,height=$height'); };")
+            : FALSE;
+    }
+    
+    public static function recursive_map_to_xml ($map, $args = FALSE) {
+        //METHOD PUBLIC ARGUMENTS
+        $rootName = 'root';
+        $version = '1.0';
+        $encoding = 'UTF-8';
+        $customArguments = FALSE;
+        $showHeader = TRUE;
+        if (!self::CHECKMAP($map)) { throw new Exception ('First argument requires an object or array', 500); }
+        
+        if (self::CHECKMAP($args)) {
+            foreach ($args as $k => $v) {
+                ${$k} = self::processInput($v);
+            }
+        }
+        
+        //STRICT VALUES
+        $xml = '';
+        $xmlArguments = '';
+        $x = new xTags();
+        
+        //PROCESSING CUSTOM XML HEADER ARGUMENTS
+        if (self::CHECKMAP($customArguments)) {
+            $cArgs = '';
+            foreach($customArguments as $k => $v) {
+                if (is_string($v)) {
+                    $cArgs[] = self::processInput($k) . '="' . self::processInput($v) . '"';
+                }
+            }
+            
+            if (count($cArgs) > 0) { $xmlArguments = ' ' . join(' ', $cArgs); }
+        }
+        
+        $xmlHeader = ($showHeader) ? : '';
+        
+        foreach ($map as $k => $v) {
+            if (self::CHECKMAP($v)) {
+                $objectType = (is_array($v))? 'array' : 'object';
+                $nextArgs = array('rootName' => $k, 'showHeader' => FALSE);
+                $xml .= $x->{$k}(self::recursive_map_to_xml($v, $nextArgs), 'type:' . $objectType);
+            } else {
+                $xml .= $x->{$k}(self::processInput($v), 'type:text');
+            }
+        }
+        
+        return ($showHeader)
+            ? '<?xml version="' . $version . '" encoding="' . $encoding . '"' . $xmlArguments . '?>'
+                . $x->{$rootName}($x->items($xml))
+            : $x->items($xml);
     }
 
     //basic email structure validation
