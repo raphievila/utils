@@ -24,8 +24,9 @@
 	"license": "GPL-3.0",
 	"require": {
 		"php": "^5.3 || ^7.0",
-		"raphievila/xtags": "^1.0.1"
+		"raphievila/xtags": "^1.0.0"
 	},
+	"prefer-stable": true,
 	"autoload": {
 		"psr-4": {
 			"Utils\\": "src/",
