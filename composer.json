@@ -12,7 +12,8 @@
 	],
 	"support": {
 		"email": "rvila@revolutionvisualarts.com",
-		"forum": "http://designersgate.com"
+		"forum": "http://designersgate.com/",
+		"wiki": "http://io.revolutionvisualarts.com/utils/"
 	},
 	"repositories": [
 		{
@@ -24,7 +25,7 @@
 	"license": "GPL-3.0",
 	"require": {
 		"php": "^5.3 || ^7.0",
-		"raphievila/xtags": "^1.0.0"
+		"raphievila/xtags": "^1.0.0 || ^1.0.x-dev"
 	},
 	"prefer-stable": true,
 	"autoload": {
